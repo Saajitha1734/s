@@ -1,0 +1,51 @@
+Find the total number of crimes recorded in the CRIME table.
+%sql select count(*) from CHICAGO_CRIME_DATA;
+
+List community areas with per capita income less than 11000.
+%sql SELECT COMMUNITY_AREA_NAME FROM CENSUS_DATA WHERE PER_CAPITA_INCOME < 11000;
+
+List all case numbers for crimes involving minors?(children are not considered minors for the purposes of crime analysis)
+%sql SELECT DISTINCT CASE_NUMBER FROM CHICAGO_CRIME_DATA WHERE DESCRIPTION LIKE '%MINOR%'
+
+List all kidnapping crimes involving a child?
+%sql SELECT DISTINCT CASE_NUMBER, PRIMARY_TYPE, DATE, DESCRIPTION FROM CHICAGO_CRIME_DATA \
+WHERE PRIMARY_TYPE='KIDNAPPING'
+
+What kinds of crimes were recorded at schools?
+%sql SELECT DISTINCT(PRIMARY_TYPE), LOCATION_DESCRIPTION FROM CHICAGO_CRIME_DATA \
+WHERE LOCATION_DESCRIPTION LIKE '%SCHOOL%'
+
+List the average safety score for all types of schools.
+SELECT
+    "Elementary, Middle, or High School",
+    AVG(SAFETY_SCORE) AS AVERAGE_SAFETY_SCORE
+FROM
+    CHICAGO_PUBLIC_SCHOOLS
+GROUP BY
+    "Elementary, Middle, or High School";
+
+
+List 5 community areas with highest % of households below poverty line
+%sql SELECT COMMUNITY_AREA_NAME, PERCENT_HOUSEHOLDS_BELOW_POVERTY FROM CENSUS_DATA ORDER BY PERCENT_HOUSEHOLDS_BELOW_POV
+
+Which community area is most crime prone?
+%%sql
+SELECT COMMUNITY_AREA_NUMBER ,COUNT(COMMUNITY_AREA_NUMBER) AS FREQUENCY
+FROM CHICAGO_CRIME_DATA 
+GROUP BY COMMUNITY_AREA_NUMBER
+ORDER BY COUNT(COMMUNITY_AREA_NUMBER) DESC
+LIMIT 1;
+
+Use a sub-query to find the name of the community area with highest hardship index
+%sql SELECT COMMUNITY_AREA_NAME
+FROM CENSUS_DATA
+WHERE HARDSHIP_INDEX = (SELECT MAX(HARDSHIP_INDEX) FROM CENSUS_DATA);
+
+Use a sub-query to determine the Community Area Name with most number of crimes?
+%%sql
+SELECT community_area_name FROM CENSUS_DATA 
+WHERE COMMUNITY_AREA_NUMBER = (SELECT COMMUNITY_AREA_NUMBER FROM CHICAGO_CRIME_DATA 
+    GROUP BY COMMUNITY_AREA_NUMBER
+    ORDER BY COUNT(COMMUNITY_AREA_NUMBER) DESC
+    LIMIT 1)
+LIMIT 1;
